@@ -6,22 +6,26 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:Layeetsta"
         mc:Ignorable="d"
-        Title="Please Login" Height="150" Width="310">
-    <Grid>
+        Title="Please Login!" Height="180" Width="310" MinHeight="150" MinWidth="310">
+    <Grid Margin="4,4,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="0.3*"/>
+            <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <TextBlock Text="ID: " Width="50"/>
-            <TextBox Width="250" HorizontalAlignment="Right" x:Name="IdField"/>
+            <TextBlock Text="ID " Width="50" VerticalAlignment="Center"/>
+            <TextBox MinWidth="250" x:Name="IdField" HorizontalAlignment="Right" VerticalAlignment="Center" TextChanged="IdField_TextChanged"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <TextBlock Text="PW: " Width="50"/>
-            <TextBox Width="250" HorizontalAlignment="Right" x:Name="PasswordField"/>
+            <TextBlock Text="PW " Width="50" VerticalAlignment="Center"/>
+            <PasswordBox MinWidth="250" HorizontalAlignment="Right" PasswordChar="*" x:Name="PasswordField" VerticalAlignment="Center" PasswordChanged="PasswordField_PasswordChanged"/>
         </StackPanel>
-        <Button Grid.Row="3" Content="Login" Click="Button_Click"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Remember This Login" Width="150" VerticalAlignment="Center"/>
+            <CheckBox x:Name="RememberAuth" Unchecked="RememberAuth_Unchecked"/>
+        </StackPanel>
+        <Button Grid.Row="3" x:Name="LoginButton" Content="Login" Click="Button_Click" Margin="4" IsEnabled="False"/>
     </Grid>
 </Controls:MetroWindow>

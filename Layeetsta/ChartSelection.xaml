@@ -5,10 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Layeetsta"
              mc:Ignorable="d" 
-             d:DesignHeight="32" d:DesignWidth="120">
-    <Grid>
-        <Grid Grid.Column="0">
-            <Image x:Name="CoverImage" Stretch="UniformToFill"/>
-        </Grid>
+             d:DesignHeight="40" d:DesignWidth="120">
+    <Grid MaxHeight="40">
+        <Image x:Name="CoverImage" Stretch="UniformToFill"/>
     </Grid>
 </UserControl>

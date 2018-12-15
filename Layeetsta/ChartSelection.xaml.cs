@@ -18,6 +18,8 @@ namespace Layeetsta
     /// <summary>
     /// ChartSelection.xaml에 대한 상호 작용 논리
     /// </summary>
+    /// 
+
     public partial class ChartSelection : UserControl
     {
         private string _charter = "";
@@ -73,22 +75,12 @@ namespace Layeetsta
                 CoverImage.Source = new BitmapImage(new Uri(_coverurl, UriKind.Absolute));
             }
         }
-
-        private string _difficulty = "";
-        public string Difficulty
-        {
-            get
-            {
-                return _difficulty;
-            }
-            set
-            {
-                _difficulty = value;
-            }
-        }
+        public int DownloadCount { get; set; } = 0;
+        public int Index { get; set; } = 0;
 
         public string GUID = null;
 
+        
         public ChartSelection()
         {
             InitializeComponent();

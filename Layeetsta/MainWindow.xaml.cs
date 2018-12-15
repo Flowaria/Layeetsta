@@ -1,4 +1,5 @@
 ﻿using Layeetsta.Util;
+using Layeetsta.Web;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 using System;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Layeetsta
 {
@@ -51,6 +53,8 @@ namespace Layeetsta
 
     public partial class MainWindow : MetroWindow
     {
+        public static WebAPI API = new WebAPI();
+
         public string Token = null;
         public string Id = null;
 
@@ -60,107 +64,113 @@ namespace Layeetsta
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             Directory.CreateDirectory("./Temp");
+            Directory.CreateDirectory("./Download");
+            Directory.CreateDirectory("./Resources");
+            if(!File.Exists("./Resources/ffmpeg.exe"))
+            {
+                File.WriteAllBytes("./Resources/ffmpeg.exe", Properties.Resources.ffmpeg);
+            }
 
+            TryLogin();
+            RefreshContent(true);
+        }
+
+        public void TryLogin()
+        {
             var l = new LoginWindow();
             l.ShowDialog();
-            if(l.Result && l.Auth.Succeed)
+        }
+
+        private async void RefreshContent(bool firsttime=false)
+        {
+            try
             {
-                Token = l.Auth.AccessToken;
-                Id = l.Auth.Id;
-                Console.WriteLine(Id);
+                var respond = await API.GetLevelList();
+
+                ChartList.Items.Clear();
+
+                var selections = new List<ChartSelection>();
+                foreach (var level in respond.Levels)
+                {
+                    var item = new ChartSelection();
+                    item.Charter = level.Designer;
+                    item.DownloadCount = level.DownloadCount;
+                    item.Artist = level.SongArtist;
+                    item.SongName = level.Title;
+                    item.GUID = level.Guid;
+                    item.Index = selections.Count + 1;
+                    selections.Add(item);
+                }
+
+                await Task.Run(() =>
+                {
+                    Parallel.ForEach(respond.Levels, async level =>
+                    {
+                        var image = await DownloadImage(level.Guid);
+                        Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
+                        {
+                            var item = selections.Find(x => x.GUID.Equals(level.Guid));
+                            item.CoverURL = image;
+                        }));
+                    });
+                });
+                
+
+                foreach(var sel in selections)
+                {
+                    ChartList.Items.Add(sel);
+                }
+            }
+            catch (LayestaWebAPINeedLoginException ex)
+            {
+                if(firsttime)
+                    Environment.Exit(0);
+
+                TryLogin();
                 RefreshContent();
             }
-        }
-
-        private void RefreshContent()
-        {
-            var result = SWRequest.RequestJson(@"https://la.schwarzer.wang/layestalevel/list/all", "Authorization", $"Bearer {Token}");
-            var respond = JsonConvert.DeserializeObject<LayestaChartList>(result);
-
-            ChartList.Items.Clear();
-
-            foreach(var level in respond.Levels)
+            catch (Exception ex)
             {
-                Console.WriteLine(level.Title);
-                AddChart(level);
+                ErrorWindow.ShowException(ex);
             }
         }
 
-        private void AddChart(LayestaChart level)
-        {
-            var item = new ChartSelection();
-            item.CoverURL = DownloadImage(level.Guid);
-            item.Charter = level.Designer;
-            item.Difficulty = level.Difficulties;
-            item.Artist = level.SongArtist;
-            item.SongName = level.Title;
-            item.GUID = level.Guid;
-            ChartList.Items.Add(item);
-        }
-
-        private string DownloadImage(string guid)
+        private async Task<string> DownloadImage(string guid)
         {
             var imgpath = System.IO.Path.Combine("./Temp/", guid + ".png");
             if(!File.Exists(imgpath))
             {
-                var r = SWRequest.RequestJson(@"https://la.schwarzer.wang/auth/oss/download/cover/" + guid, "Authorization", $"Bearer {Token}");
-                var respond = JsonConvert.DeserializeObject<LayestaFile>(r);
-
-                SWRequest.RequestDL(respond.Uri, Id, imgpath);
+                return await API.DownloadCoverImage(guid, imgpath);
             }
             return System.IO.Path.GetFullPath(imgpath);
-        }
-
-        private void DownloadChart(string guid, string filename)
-        {
-            if (!File.Exists(filename))
-            {
-                var r = SWRequest.RequestJson(@"https://la.schwarzer.wang/auth/oss/download/layesta/" + guid, "Authorization", $"Bearer {Token}");
-                var respond = JsonConvert.DeserializeObject<LayestaFile>(r);
-
-                SWRequest.RequestDL(respond.Uri, Id, filename);
-            }
-        }
-
-        private void DLLayesta_Click(object sender, RoutedEventArgs e)
-        {
-            if (ChartList.SelectedItems.Count == 0)
-            {
-                MessageBox.Show("Theres no file selected!", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else if (ChartList.SelectedItems.Count == 1)
-            {
-                var file = FileDialog.LayestaSave();
-                if(file != null)
-                {
-                    DownloadChart((ChartList.SelectedItem as ChartSelection).GUID, file);
-                }
-            }
-            else if (ChartList.SelectedItems.Count > 1)
-            {
-
-            }
-        }
-
-        private void DLLap_Click(object sender, RoutedEventArgs e)
-        {
-            if (ChartList.SelectedItems.Count == 0)
-            {
-                MessageBox.Show("Theres no file selected!", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else if (ChartList.SelectedItems.Count == 1)
-            {
-
-            }
-            else if (ChartList.SelectedItems.Count > 1)
-            {
-
-            }
         }
 
         private void ChartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectedCounter.Text = String.Format("Selected {0} Items", ChartList.SelectedItems.Count);
+        }
+
+        private void ReloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshContent();
+        }
+
+        private void DownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(ChartList.SelectedItems.Count > 0)
+            {
+                var dialog = new DownloadWindow();
+                foreach(var item in ChartList.SelectedItems)
+                {
+                    var sel = item as ChartSelection;
+                    var i = new LayestaInfo();
+                    i.SongName = sel.SongName;
+                    i.Charter = sel.Charter;
+                    i.GUID = sel.GUID;
+                    dialog.Selections.Add(i);
+                } 
+                dialog.ShowDialog();
+            }
         }
     }
 }
