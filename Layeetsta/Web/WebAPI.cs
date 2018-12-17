@@ -11,6 +11,14 @@ namespace Layeetsta.Web
 {
     public class WebAPI
     {
+        public WebAPI()
+        {
+            ServicePointManager.SecurityProtocol |=
+                SecurityProtocolType.Tls11 |
+                SecurityProtocolType.Tls12 |
+                SecurityProtocolType.Ssl3;
+        }
+
         private Auth auth = null;
         public async Task Login(string id, string password)
         {
