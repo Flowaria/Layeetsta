@@ -22,44 +22,9 @@ namespace Layeetsta
 
     public partial class ChartSelection : UserControl
     {
-        private string _charter = "";
-        public string Charter
-        {
-            get
-            {
-                return _charter;
-            }
-            set
-            {
-                _charter = value;
-            }
-        }
-
-        private string _song = "";
-        public string SongName
-        {
-            get
-            {
-                return _song;
-            }
-            set
-            {
-                _song = value;
-            }
-        }
-
-        private string _artist = "";
-        public string Artist
-        {
-            get
-            {
-                return _artist;
-            }
-            set
-            {
-                _artist = value;
-            }
-        }
+        public string Charter { get; set; } = "";
+        public string SongName { get; set; } = "";
+        public string Artist { get; set; } = "";
 
         private string _coverurl = "";
         public string CoverURL
@@ -78,9 +43,13 @@ namespace Layeetsta
         public int DownloadCount { get; set; } = 0;
         public int Index { get; set; } = 0;
 
+        public float Rate { get; set; } = 0.0f;
+
         public string GUID = null;
 
-        
+        public bool ParticipantCurrentContest { get; set; } = false;
+
+
         public ChartSelection()
         {
             InitializeComponent();

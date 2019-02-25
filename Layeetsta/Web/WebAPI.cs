@@ -20,6 +20,25 @@ namespace Layeetsta.Web
         }
 
         private Auth auth = null;
+
+        public string Token
+        {
+            get
+            {
+                return auth.AccessToken;
+            }
+        }
+
+        public void ApplyAuth(string id, string token)
+        {
+            var a = new Auth()
+            {
+                Id = id,
+                AccessToken = token
+            };
+            auth = a;
+        }
+
         public async Task Login(string id, string password)
         {
             HttpWebRequest r = (HttpWebRequest)HttpWebRequest.Create(@"https://la.schwarzer.wang/auth/login");
@@ -82,6 +101,76 @@ namespace Layeetsta.Web
             }
         }
 
+        public async Task<LevelListRespond> GetContestLevelList()
+        {
+            if (auth != null)
+            {
+                HttpWebRequest r = (HttpWebRequest)HttpWebRequest.Create(@"https://la.schwarzer.wang/layestalevel/list/contest");
+                r.Method = "GET";
+                r.Timeout = 10000;
+                r.ContentType = "application/json";
+                r.Headers.Add("Authorization", String.Format("Bearer {0}", auth.AccessToken));
+
+                var response = await r.GetResponseAsync();
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    var json = await sr.ReadToEndAsync();
+                    var respond = JsonConvert.DeserializeObject<LevelListRespond>(json);
+                    if (respond.Succeed)
+                    {
+                        return respond;
+                    }
+                    else if (respond.ErrorCode == (int)ErrorCode.InvalidAuth)
+                    {
+                        throw new LayestaWebAPINeedLoginException();
+                    }
+                    else
+                    {
+                        throw new LayestaWebAPIException(respond.ErrorCode);
+                    }
+                }
+            }
+            else
+            {
+                throw new LayestaWebAPINeedLoginException();
+            }
+        }
+
+        public async Task<RatingListRespond> GetRatingList(string guid)
+        {
+            if (auth != null)
+            {
+                HttpWebRequest r = (HttpWebRequest)HttpWebRequest.Create(@"https://la.schwarzer.wang/layestalevel/comment/"+guid);
+                r.Method = "GET";
+                r.Timeout = 10000;
+                r.ContentType = "application/json";
+                r.Headers.Add("Authorization", String.Format("Bearer {0}", auth.AccessToken));
+
+                var response = await r.GetResponseAsync();
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    var json = await sr.ReadToEndAsync();
+                    var respond = JsonConvert.DeserializeObject<RatingListRespond>(json);
+                    if (respond.Succeed)
+                    {
+                        return respond;
+                    }
+                    else if (respond.ErrorCode == (int)ErrorCode.InvalidAuth)
+                    {
+                        throw new LayestaWebAPINeedLoginException();
+                    }
+                    else
+                    {
+                        throw new LayestaWebAPIException(respond.ErrorCode);
+                    }
+                }
+            }
+            else
+            {
+                throw new LayestaWebAPINeedLoginException();
+            }
+        }
+
         public async Task<string> DownloadCoverImage(string guid, string path)
         {
             var p = Path.GetFullPath(path);
@@ -96,18 +185,6 @@ namespace Layeetsta.Web
             return p;
         }
 
-        #region Overrides
-        public async Task<string> DownloadCoverImage(LayestaLevel level, string path)
-        {
-            return await DownloadCoverImage(level.Guid, path);
-        }
-
-        public async Task<string> DownloadChart(LayestaLevel level, string path)
-        {
-            return await DownloadCoverImage(level.Guid, path);
-        }
-        #endregion
-
         private async Task DownloadFile(string url, string path)
         {
             if(auth != null)
@@ -116,6 +193,7 @@ namespace Layeetsta.Web
                 r.Method = "GET";
                 r.Timeout = 10000;
                 r.ContentType = "application/json";
+                r.UserAgent = "UnityPlayer";
                 r.Headers.Add("Authorization", String.Format("Bearer {0}", auth.AccessToken));
 
                 var response = await r.GetResponseAsync();
@@ -149,7 +227,7 @@ namespace Layeetsta.Web
             r.Method = "GET";
             r.Timeout = 10000;
             r.UserAgent = auth.Id;
-
+            //r.Headers.Add("Authorization", String.Format("Bearer {0}", auth.AccessToken));
 
             var buff = new byte[1024];
             int pos = 0;
@@ -190,13 +268,6 @@ namespace Layeetsta.Web
         public int ErrorCode { get; set; }
     }
 
-    public class LevelListRespond
-    {
-        public bool Succeed { get; set; }
-        public List<LayestaLevel> Levels { get; set; }
-        public int ErrorCode { get; set; }
-    }
-
     public class LayestaLevel
     {
         public string Title { get; set; }
@@ -206,6 +277,49 @@ namespace Layeetsta.Web
         public int DownloadCount { get; set; }
         public bool ShouldDisplay { get; set; }
         public string Designer { get; set; }
+        public float Rating { get; set; }
+        public List<LayestaRating> Ratings { get; set; }
+        public bool ParticipantCurrentContest { get; set; }
+    }
+
+    public class LevelListRespond
+    {
+        public bool Succeed { get; set; }
+        public List<LayestaLevel> Levels { get; set; }
+        public int ErrorCode { get; set; }
+    }
+
+    public enum LayestaThumbType
+    {
+        None,
+        Up,
+        Down
+    }
+
+    public class RatingListRespond
+    {
+        public bool Succeed { get; set; }
+        public LayestaLevel Level { get; set; }
+        public int ErrorCode { get; set; }
+    }
+
+    public class LayestaRating
+    {
+        public string Username { get; set; }
+        public float Rating { get; set; }
+        public string Comment { get; set; }
+        public long RateTime { get; set; }
+        public string RatingGuid { get; set; }
+        public int ThumbUps { get; set; }
+        public int ThumbDowns { get; set; }
+        public LayestaThumbType ThumbType { get; set; }
+    }
+
+    public class LayestaRatingRequest
+    {
+        public float Rating { get; set; }
+        public string Comment { get; set; }
+        public string LevelGuid { get; set; }
     }
 
     public enum ErrorCode

@@ -84,7 +84,16 @@
     <Compile Include="ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindowListViewAlign.cs" />
+    <Compile Include="RatingListItem.xaml.cs">
+      <DependentUpon>RatingListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Util\ListViewAlign.cs" />
+    <Compile Include="RatingListWindow.xaml.cs">
+      <DependentUpon>RatingListWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UploadWindow.xaml.cs">
+      <DependentUpon>UploadWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Util\AudioConverter.cs" />
     <Compile Include="Util\LapFile.cs" />
     <Compile Include="Util\FileDialog.cs" />
@@ -121,6 +130,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RatingListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RatingListWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UploadWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -160,6 +181,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_upload.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

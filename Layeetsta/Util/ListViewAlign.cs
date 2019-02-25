@@ -9,17 +9,18 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace Layeetsta
+namespace Layeetsta.Util
 {
-    public partial class MainWindow
+    public class ListViewAlign
     {
         private string currentheader = "ID";
 
         private SortDescription sort_rule = new SortDescription("Index", ListSortDirection.Ascending);
 
-        private void ChartListHeader_Click(object sender, RoutedEventArgs e)
+        private void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             var header = e.OriginalSource as GridViewColumnHeader;
+            var ChartList = header.Parent as ListView;
             if(header.Column.DisplayMemberBinding != null)
             {
                 var columnBinding = header.Column.DisplayMemberBinding as Binding;

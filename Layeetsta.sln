@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layeetsta", "Layeetsta\Layeetsta.csproj", "{BD0EC2B8-AA6F-4A08-B9A9-88D9D78BEDB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaChartzone", "LaChartzone\LaChartzone.csproj", "{25230622-493F-4B10-A3D1-4E46C73CC690}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BD0EC2B8-AA6F-4A08-B9A9-88D9D78BEDB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD0EC2B8-AA6F-4A08-B9A9-88D9D78BEDB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD0EC2B8-AA6F-4A08-B9A9-88D9D78BEDB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25230622-493F-4B10-A3D1-4E46C73CC690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25230622-493F-4B10-A3D1-4E46C73CC690}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25230622-493F-4B10-A3D1-4E46C73CC690}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25230622-493F-4B10-A3D1-4E46C73CC690}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
